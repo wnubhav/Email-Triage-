@@ -1,0 +1,52 @@
+{
+  "emails": [
+    {
+      "message_id": "gf-8821@globalfab.com",
+      "sender": "priya.sharma@globalfab.com",
+      "subject": "Virtuoso crashing on netlist import - full log attached",
+      "body": "<div dir=\"ltr\"><p>Hi team,</p><p>We're seeing a consistent SIGSEGV in Virtuoso 23.1.1 whenever we attempt to import the attached netlist. The crash is reproducible and is blocking our tape-out scheduled for Friday.</p><p>Stacktrace excerpt:</p><pre>  #0 0x00007f8a2c3d1234 in VirtuosoCore::NetlistParser::parseNode\n  #1 0x00007f8a2c3d5678 in VirtuosoCore::NetlistParser::parse\n  #2 0x00007f8a2c3d9abc in VirtuosoCore::NetlistParser::importFile</pre><p>We tried reverting to 22.1 and the import succeeds. This appears to be a regression.</p><p>Please treat this as critical, tape-out deadline is Friday 5pm IST.</p><p>Priya Sharma<br/>Sr. Design Engineer, GlobalFab</p></div>\n\nOn Thu, 4 Sep 2025 at 18:22, Cadence Support wrote:\n> Thanks for raising this. Could you confirm the exact build number?\n> We will need the full log to reproduce internally.\n> Regards, Support"
+    },
+    {
+      "message_id": "tv-2291@techventures.io",
+      "sender": "ops@techventures.io",
+      "subject": "URGENT: License server down - 40 engineers blocked",
+      "body": "URGENT,\n\nOur FlexNet license server for Cadence Innovus has stopped responding. All 40 engineers are blocked and we cannot run any sign-off jobs.\n\nServer: lmgrd v11.18.1 on CentOS 7\nError from lmstat: Connection refused (port 27000)\nLast known good state: yesterday 18:30 IST\n\nWe have a customer delivery milestone at EOD today. This is revenue impacting.\n\nPlease escalate immediately.\n\nOps Team\nTechVentures"
+    },
+    {
+      "message_id": "cd-5510@chipdesign.eu",
+      "sender": "alex.novak@chipdesign.eu",
+      "subject": "Re: JasperGold property failing - need guidance on assertion syntax",
+      "body": "Hi,\n\nFollowing up on last week's thread. The assertion still fails intermittently. We narrowed it to the assume statement interaction with the clock gating cell.\n\nProperty in question:\nassert property (@(posedge clk) disable iff (rst) req |-> ##[1:4] ack);\nassume property (@(posedge clk) !gating_en);\n\nRemoving the assume resolves the spurious failure but that is not a real fix. Can someone from the JasperGold team review our constraint setup?\n\nAlex Novak\nVerification Lead"
+    },
+    {
+      "message_id": "ad-3301@analogdesigns.com",
+      "sender": "m.chen@analogdesigns.com",
+      "subject": "Verilog-A model review request - BSIM-BULK transistor model",
+      "body": "Hi,\n\nAttaching our Verilog-A implementation of the BSIM-BULK model. We are seeing a 12% mismatch in parameter extraction in the saturation region compared to the SPICE reference.\n\nSuspect the issue is in our Vth0 calculation or the mobility degradation factor. Would appreciate a review of the model equations.\n\n-- Michael Chen"
+    },
+    {
+      "message_id": "si-7742@semiconductor.in",
+      "sender": "r.patel@semiconductor.in",
+      "subject": "Invoice query - license renewal Q3 FY26",
+      "body": "Hi,\n\nWe received the renewal quote but the Innovus Implementation Suite line item shows $148,000 against our contracted rate of $132,000. Can someone from account management clarify?\n\nRohit Patel\nIT Procurement"
+    },
+    {
+      "message_id": "fl-9930@fabriclab.net",
+      "sender": "debug@fabriclab.net",
+      "subject": "Innovus timing violation - hold fix loop not converging",
+      "body": "Hi,\n\nRunning ECO hold fix on a 5nm design. After 12 iterations Innovus is still reporting 847 hold violations (WNS -0.042ns). The tool appears to be looping, adding buffers in one domain creates violations in another.\n\nCmd used: setAnalysisMode -analysisType bcwc; optDesign -hold -outDir ./hold_fix\n\nLog attached. Any known workaround for this convergence issue?\n\nDebug Team\nFabricLab"
+    },
+    {
+      "message_id": "gf-8899@globalfab.com",
+      "sender": "raj.menon@globalfab.com",
+      "subject": "Virtuoso SIGSEGV again on netlist import after patch",
+      "body": "Hi,\n\nWe applied the suggested patch but Virtuoso still crashes with SIGSEGV during netlist import on a different block.\n\n  #0 0x00007f8a2c3d1234 in VirtuosoCore::NetlistParser::parseNode\n  #1 0x00007f8a2c3d5678 in VirtuosoCore::NetlistParser::parse\n\nSame tape-out is at risk. Escalating.\n\nRaj Menon"
+    },
+    {
+      "message_id": "nx-1180@northxsemi.com",
+      "sender": "cad.admin@northxsemi.com",
+      "subject": "lmgrd not starting after server migration",
+      "body": "Hi,\n\nAfter migrating our license server to a new host, lmgrd will not start.\n\nlmgrd: Failed to open the TCP port number in the license file\nport 27000 appears to already be in use\nlmhostid returns a different value than the one on the license file\n\nCan you reissue the license for the new host id?\n\nCAD Admin, NorthX"
+    }
+  ]
+}

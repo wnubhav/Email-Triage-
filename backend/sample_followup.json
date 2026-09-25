@@ -1,0 +1,10 @@
+{
+  "emails": [
+    {
+      "message_id": "followup-001@globalfab.com",
+      "sender": "priya.sharma@globalfab.com",
+      "subject": "Virtuoso crashing on netlist import, second block affected",
+      "body": "Hi team,\n\nWe're seeing the same consistent SIGSEGV in Virtuoso 23.1.1 whenever we attempt to import the attached netlist. The crash happens reproducibly and is blocking our tape-out scheduled for Friday.\n\nStacktrace excerpt:\n  #0 0x00007f8a2c3d1234 in VirtuosoCore::NetlistParser::parseNode\n\nWe've tried reverting to 22.1 and the import succeeds. This appears to be a regression.\n\nPriya Sharma\nSr. Design Engineer, GlobalFab"
+    }
+  ]
+}

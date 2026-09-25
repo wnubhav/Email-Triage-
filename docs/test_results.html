@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Test results</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; font-family: "Inter", system-ui, sans-serif; }
+  #sheet { width: 1080px; padding: 34px 38px 30px; }
+  .doc-head { display:flex; align-items:baseline; justify-content:space-between;
+               border-bottom:2px solid #12161c; padding-bottom:9px; margin-bottom:16px; }
+  .doc-head h1 { margin:0; font-size:17px; font-weight:700; letter-spacing:-.01em; color:#12161c; }
+  .doc-head span { font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.09em;
+                    text-transform:uppercase; color:#6b7583; }
+  .strip { display:flex; gap:10px; margin-bottom:14px; }
+  .stat { flex:1; border:1px solid #dde2e8; border-radius:5px; padding:10px 14px; }
+  .stat b { display:block; font-family:"JetBrains Mono",monospace; font-size:22px;
+             font-weight:600; color:#12161c; line-height:1.15; }
+  .stat b.g { color:#12874f; }
+  .stat span { font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.09em;
+                text-transform:uppercase; color:#8a94a3; }
+  .term { background:#0d0f12; border:1px solid #262c36; border-radius:6px; overflow:hidden; }
+  .bar { display:flex; align-items:center; gap:7px; padding:8px 13px; border-bottom:1px solid #1d222b; background:#12161c; }
+  .dot { width:9px; height:9px; border-radius:50%; }
+  .cmd { margin-left:8px; font-family:"JetBrains Mono",monospace; font-size:11px; color:#8b95a6; }
+  .out { padding:13px 16px 15px; font-family:"JetBrains Mono",monospace; font-size:11.5px; line-height:1.75; }
+  .ln { color:#b9c3d1; white-space:pre-wrap; word-break:break-word; }
+  .ln.dim { color:#5e6877; }
+  .ok { color:#35c48a; font-weight:600; }
+  .pct { color:#5e6877; }
+  .file { color:#7f8a99; } .cls { color:#7a9cff; } .fn { color:#dbe3ee; }
+  .summary { color:#35c48a; font-weight:600; margin-top:6px; }
+  .foot { margin-top:13px; border-top:1px solid #e3e7ec; padding-top:9px;
+           display:flex; justify-content:space-between;
+           font-family:"JetBrains Mono",monospace; font-size:9.5px; color:#7c8797; }
+</style></head><body><div id="sheet">
+  <div class="doc-head">
+    <h1>Intelligent Email Triage Assistant · Backend Test Suite</h1><span>Fig. 2 · 2026-09-09</span>
+  </div>
+  <div class="strip">
+    <div class="stat"><span>Tests passed</span><b class="g">20 / 20</b></div>
+    <div class="stat"><span>Failures</span><b>0</b></div>
+    <div class="stat"><span>Runtime</span><b>3.71s</b></div>
+    <div class="stat"><span>Coverage areas</span><b>6</b></div>
+  </div>
+  <div class="term">
+    <div class="bar">
+      <i class="dot" style="background:#e8573c"></i><i class="dot" style="background:#dfa02a"></i>
+      <i class="dot" style="background:#2fbe85"></i>
+      <span class="cmd">backend $ pytest tests/ -v</span>
+    </div>
+    <div class="out"><div class="ln dim">============================= test session starts =============================</div><div class="ln dim">collecting ... collected 20 items</div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestPreprocessor</span>::<span class="fn">test_strips_html_tags</span> <b class="ok">PASSED</b>        <span class="pct">[  5%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestPreprocessor</span>::<span class="fn">test_removes_quoted_thread</span> <b class="ok">PASSED</b>   <span class="pct">[ 10%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestPreprocessor</span>::<span class="fn">test_removes_gt_quoted_lines</span> <b class="ok">PASSED</b> <span class="pct">[ 15%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestPreprocessor</span>::<span class="fn">test_truncates_long_body</span> <b class="ok">PASSED</b>     <span class="pct">[ 20%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestPreprocessor</span>::<span class="fn">test_collapses_whitespace</span> <b class="ok">PASSED</b>    <span class="pct">[ 25%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestPreprocessor</span>::<span class="fn">test_normal_email_unchanged_structure</span> <b class="ok">PASSED</b> <span class="pct">[ 30%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestIngestEmail</span>::<span class="fn">test_ingest_single_email</span> <b class="ok">PASSED</b>      <span class="pct">[ 35%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestIngestEmail</span>::<span class="fn">test_idempotent_on_duplicate_message_id</span> <b class="ok">PASSED</b> <span class="pct">[ 40%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestIngestEmail</span>::<span class="fn">test_no_jira_for_admin_email</span> <b class="ok">PASSED</b>  <span class="pct">[ 45%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestIngestEmail</span>::<span class="fn">test_similar_issue_returned</span> <b class="ok">PASSED</b>   <span class="pct">[ 50%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestBatchIngest</span>::<span class="fn">test_batch_returns_202</span> <b class="ok">PASSED</b>        <span class="pct">[ 55%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestBatchIngest</span>::<span class="fn">test_batch_status_404_unknown_job</span> <b class="ok">PASSED</b> <span class="pct">[ 60%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestListing</span>::<span class="fn">test_list_emails</span> <b class="ok">PASSED</b>                  <span class="pct">[ 65%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestListing</span>::<span class="fn">test_get_email_by_id</span> <b class="ok">PASSED</b>              <span class="pct">[ 70%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestListing</span>::<span class="fn">test_get_nonexistent_email</span> <b class="ok">PASSED</b>        <span class="pct">[ 75%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestFeedback</span>::<span class="fn">test_submit_correct_feedback</span> <b class="ok">PASSED</b>     <span class="pct">[ 80%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestFeedback</span>::<span class="fn">test_submit_correction_feedback</span> <b class="ok">PASSED</b>  <span class="pct">[ 85%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestFeedback</span>::<span class="fn">test_feedback_404_unknown_triage</span> <b class="ok">PASSED</b> <span class="pct">[ 90%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestStats</span>::<span class="fn">test_stats_returns_aggregates</span> <b class="ok">PASSED</b>       <span class="pct">[ 95%]</span></div><div class="ln"><span class="file">tests/test_api.py</span>::<span class="cls">TestStats</span>::<span class="fn">test_stats_empty_db</span> <b class="ok">PASSED</b>                 <span class="pct">[100%]</span></div><div class="ln summary">======================= 20 passed, 27 warnings in 3.71s =======================</div></div>
+  </div>
+  <div class="foot">
+    <span>Preprocessor · ingest · idempotency · batch · listing · detail · feedback · statistics</span>
+    <span>pytest 8.3.3 · FastAPI TestClient · model call mocked</span>
+  </div>
+</div></body></html>

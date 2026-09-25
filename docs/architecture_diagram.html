@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Architecture · Intelligent Email Triage Assistant</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: #ffffff;
+        font-family: "Inter", system-ui, sans-serif;
+        color: #12161c;
+      }
+      #sheet { width: 1000px; padding: 34px 40px 30px; }
+      .doc-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 2px solid #12161c;
+        padding-bottom: 9px;
+        margin-bottom: 4px;
+      }
+      .doc-head h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+      .doc-head span {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #6b7583;
+      }
+      svg { display: block; }
+      .lbl { font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .12em; fill: #8a94a3; text-transform: uppercase; }
+      .ttl { font-family: "Inter", sans-serif; font-size: 14px; font-weight: 650; fill: #12161c; }
+      .sub { font-family: "JetBrains Mono", monospace; font-size: 10px; fill: #5d6774; }
+      .det { font-family: "Inter", sans-serif; font-size: 11px; fill: #47515e; }
+      .tag { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .06em; fill: #ffffff; }
+      .note { font-family: "JetBrains Mono", monospace; font-size: 9.5px; fill: #7c8797; letter-spacing: .04em; }
+    </style>
+  </head>
+  <body>
+    <div id="sheet">
+      <div class="doc-head">
+        <h1>Intelligent Email Triage Assistant · System Architecture</h1>
+        <span>Fig. 1</span>
+      </div>
+
+      <svg width="920" height="1054" viewBox="-44 0 964 1105" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#3c4652" />
+          </marker>
+          <marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f6fe0" />
+          </marker>
+        </defs>
+
+        <!-- ══ 1. INGESTION ══ -->
+        <text class="lbl" x="0" y="14">1 · Ingestion</text>
+        <line x1="86" y1="10" x2="920" y2="10" stroke="#e3e7ec" stroke-width="1" />
+
+        <g>
+          <rect x="0" y="30" width="288" height="62" rx="4" fill="#f7f9fb" stroke="#cfd6de" />
+          <text class="ttl" x="16" y="53" font-size="12.5">Gmail / IMAP connector</text>
+          <text class="det" x="16" y="72">Polls the support mailbox</text>
+          <text class="note" x="16" y="86">not implemented; ingestion contract is open</text>
+        </g>
+        <g>
+          <rect x="316" y="30" width="288" height="62" rx="4" fill="#ffffff" stroke="#3f6fe0" stroke-width="1.4" />
+          <text class="ttl" x="332" y="53" font-size="12.5">Manual / console upload</text>
+          <text class="det" x="332" y="72">One email at a time</text>
+          <text class="sub" x="332" y="86">POST /api/emails</text>
+        </g>
+        <g>
+          <rect x="632" y="30" width="288" height="62" rx="4" fill="#ffffff" stroke="#3f6fe0" stroke-width="1.4" />
+          <text class="ttl" x="648" y="53" font-size="12.5">Batch submission</text>
+          <text class="det" x="648" y="72">202 + background job, polled for progress</text>
+          <text class="sub" x="648" y="86">POST /api/emails/batch</text>
+        </g>
+
+        <!-- converge -->
+        <path d="M144 92 L144 112 L460 112" stroke="#3c4652" stroke-width="1.2" fill="none" />
+        <path d="M776 92 L776 112 L460 112" stroke="#3c4652" stroke-width="1.2" fill="none" />
+        <line x1="460" y1="92" x2="460" y2="112" stroke="#3c4652" stroke-width="1.2" />
+        <line x1="460" y1="112" x2="460" y2="140" stroke="#3c4652" stroke-width="1.4" marker-end="url(#ah)" />
+
+        <!-- ══ 2. PREPROCESSING ══ -->
+        <text class="lbl" x="0" y="166">2 · Text preprocessing</text>
+        <line x1="150" y1="162" x2="920" y2="162" stroke="#e3e7ec" />
+        <rect x="0" y="180" width="920" height="86" rx="4" fill="#ffffff" stroke="#2b323c" stroke-width="1.5" />
+        <text class="ttl" x="18" y="204">Preprocessor</text>
+        <text class="sub" x="128" y="204">app/preprocessor.py</text>
+        <text class="det" x="18" y="228">Strips HTML · removes quoted thread history · truncates hex/log dumps to 40 lines · caps body at 3000 chars</text>
+        <text class="note" x="18" y="250">Both forms are kept: body_raw for the operator, body_clean for the model. The console shows the difference.</text>
+        <line x1="460" y1="266" x2="460" y2="300" stroke="#3c4652" stroke-width="1.4" marker-end="url(#ah)" />
+        <text class="note" x="470" y="288">body_clean</text>
+
+        <!-- ══ 3. CLASSIFICATION ══ -->
+        <text class="lbl" x="0" y="326">3 · LLM classification</text>
+        <line x1="152" y1="322" x2="920" y2="322" stroke="#e3e7ec" />
+        <rect x="0" y="340" width="920" height="120" rx="4" fill="#f4f7ff" stroke="#3f6fe0" stroke-width="1.5" />
+        <text class="ttl" x="18" y="364">Google Gemini</text>
+        <rect x="148" y="352" width="116" height="16" rx="3" fill="#3f6fe0" />
+        <text class="tag" x="156" y="364">gemini-3.6-flash</text>
+        <text class="sub" x="278" y="364">app/gemini_client.py</text>
+        <text class="det" x="18" y="388">Single structured call. Response schema enforced by the API, so category and priority arrive as constrained enums.</text>
+
+        <text class="sub" x="18" y="416" fill="#3f6fe0">category</text>
+        <text class="sub" x="112" y="416" fill="#3f6fe0">priority</text>
+        <text class="sub" x="196" y="416" fill="#3f6fe0">intent_summary</text>
+        <text class="sub" x="330" y="416" fill="#3f6fe0">suggested_action</text>
+        <text class="sub" x="480" y="416" fill="#3f6fe0">confidence</text>
+        <text class="sub" x="588" y="416" fill="#3f6fe0">needs_jira</text>
+        <text class="sub" x="684" y="416" fill="#3f6fe0">jira_payload</text>
+        <text class="sub" x="800" y="416" fill="#3f6fe0">draft_reply</text>
+        <text class="note" x="18" y="440">5 categories (crash · licence · design review · bug · admin) × 4 priorities (P1 blocking → P4 admin). Failures raise; nothing is fabricated.</text>
+
+        <line x1="460" y1="460" x2="460" y2="494" stroke="#3c4652" stroke-width="1.4" marker-end="url(#ah)" />
+
+        <!-- ══ 4. ORCHESTRATION ══ -->
+        <text class="lbl" x="0" y="520">4 · API orchestration</text>
+        <line x1="150" y1="516" x2="920" y2="516" stroke="#e3e7ec" />
+        <rect x="0" y="534" width="920" height="70" rx="4" fill="#ffffff" stroke="#2b323c" stroke-width="1.5" />
+        <text class="ttl" x="18" y="558">FastAPI</text>
+        <text class="sub" x="90" y="558">app/main.py · 8 endpoints · BackgroundTasks for batch</text>
+        <text class="det" x="18" y="582">Idempotent on message_id · filtering by priority and category · aggregate statistics</text>
+
+        <!-- split to storage + similarity -->
+        <path d="M230 604 L230 632 L230 656" stroke="#3c4652" stroke-width="1.4" fill="none" marker-end="url(#ah)" />
+        <path d="M690 604 L690 632 L690 656" stroke="#3c4652" stroke-width="1.4" fill="none" marker-end="url(#ah)" />
+
+        <!-- ══ 5. PERSISTENCE + SIMILARITY ══ -->
+        <text class="lbl" x="0" y="682">5 · Persistence &amp; retrieval</text>
+        <line x1="180" y1="678" x2="920" y2="678" stroke="#e3e7ec" />
+
+        <rect x="0" y="696" width="440" height="112" rx="4" fill="#ffffff" stroke="#2b323c" stroke-width="1.5" />
+        <text class="ttl" x="18" y="720">SQLite</text>
+        <text class="sub" x="82" y="720">SQLAlchemy · triage.db</text>
+        <text class="det" x="18" y="744">emails: raw + cleaned body, message_id, received_at</text>
+        <text class="det" x="18" y="764">triage_results: classification, confidence, payloads</text>
+        <text class="det" x="18" y="784">feedback_log: every human confirmation or correction</text>
+
+        <rect x="480" y="696" width="440" height="112" rx="4" fill="#ffffff" stroke="#2b323c" stroke-width="1.5" />
+        <text class="ttl" x="498" y="720">TF-IDF similarity</text>
+        <text class="sub" x="622" y="720">scikit-learn</text>
+        <text class="det" x="498" y="744">Corpus: subject + intent_summary of prior triage</text>
+        <text class="det" x="498" y="764">Cosine similarity with score, surfaced above 0.35</text>
+        <text class="note" x="498" y="784">Classical retrieval: no model call, no embedding cost</text>
+
+        <!-- cross link between store and index -->
+        <path d="M440 752 L480 752" stroke="#3c4652" stroke-width="1.2" fill="none" marker-end="url(#ah)" marker-start="url(#ah)" />
+
+        <path d="M220 808 L220 838 L460 838" stroke="#3c4652" stroke-width="1.2" fill="none" />
+        <path d="M700 808 L700 838 L460 838" stroke="#3c4652" stroke-width="1.2" fill="none" />
+        <line x1="460" y1="838" x2="460" y2="866" stroke="#3c4652" stroke-width="1.4" marker-end="url(#ah)" />
+
+        <!-- ══ 6. INTERFACE ══ -->
+        <text class="lbl" x="0" y="892">6 · Operator console</text>
+        <line x1="152" y1="888" x2="920" y2="888" stroke="#e3e7ec" />
+        <rect x="0" y="906" width="920" height="76" rx="4" fill="#ffffff" stroke="#2b323c" stroke-width="1.5" />
+        <text class="ttl" x="18" y="930">React console</text>
+        <text class="sub" x="128" y="930">Vite · no UI framework · ~68 kB gzipped</text>
+        <text class="det" x="18" y="954">Priority-banded queue → message with technical content set in monospace → classification, intent,</text>
+        <text class="det" x="18" y="972">recommended action, similarity match, generated issue, and the review control.</text>
+
+        <line x1="460" y1="982" x2="460" y2="1012" stroke="#3f6fe0" stroke-width="1.4" marker-end="url(#ah-blue)" />
+
+        <!-- ══ 7. HITL ══ -->
+        <rect x="180" y="1026" width="560" height="58" rx="4" fill="#f4f7ff" stroke="#3f6fe0" stroke-width="1.5" />
+        <text class="ttl" x="200" y="1050" fill="#1d2b52">Human review</text>
+        <text class="sub" x="336" y="1050" fill="#3f6fe0">POST /api/triage/{id}/feedback</text>
+        <text class="det" x="200" y="1070">Confirm or reclassify; every decision is logged and reported as model accuracy</text>
+
+        <!-- feedback loop: the review is written back into the store -->
+        <path d="M180 1055 L-26 1055 L-26 784 L-2 784" stroke="#3f6fe0" stroke-width="1.3" fill="none"
+              stroke-dasharray="4 3" marker-end="url(#ah-blue)" />
+        <text class="note" x="-32" y="920" fill="#3f6fe0" transform="rotate(-90 -32 920)">feedback_log</text>
+      </svg>
+
+      <div style="margin-top: 14px; border-top: 1px solid #e3e7ec; padding-top: 9px; display: flex; justify-content: space-between;">
+        <span class="note" style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #7c8797;">
+          Solid rule = request path · dashed = human feedback loop
+        </span>
+        <span class="note" style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #7c8797;">
+          FastAPI · SQLAlchemy · scikit-learn · Google Gemini · React · Vite
+        </span>
+      </div>
+    </div>
+  </body>
+</html>

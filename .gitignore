@@ -1,0 +1,43 @@
+# ── secrets ──────────────────────────────────────────────────────────
+# Never commit the Anthropic key. Use .env.example as the template.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# ── python ───────────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ── database ─────────────────────────────────────────────────────────
+# triage.db is regenerated on startup; it holds ingested mail, so it is
+# both disposable and potentially sensitive.
+*.db
+*.sqlite
+*.sqlite3
+
+# ── node / frontend ──────────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.local
+npm-debug.log*
+yarn-error.log*
+
+# ── editors / os ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Design Document · Intelligent Email Triage Assistant</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @page { size: A4; margin: 13mm; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 10.2pt;
+        line-height: 1.58;
+        color: #1a1f26;
+        background: #fff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      h1, h2, h3 { letter-spacing: -0.012em; }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22pt 0 7pt;
+        padding-bottom: 4pt;
+        border-bottom: 1.5px solid #1a1f26;
+        break-after: avoid;
+      }
+      h3 { font-size: 10.8pt; margin: 13pt 0 4pt; break-after: avoid; }
+      p { margin: 0 0 7pt; }
+      ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+      li { margin-bottom: 3.5pt; }
+      code, .mono { font-family: "JetBrains Mono", monospace; font-size: 8.8pt; }
+      code { background: #f1f4f7; border: 1px solid #e2e7ed; border-radius: 3px; padding: 0.5pt 3pt; }
+      a { color: #2f5fd0; }
+
+      /* cover */
+      .cover { break-after: page; padding-top: 34pt; }
+      .cover .rule { height: 3px; background: #1a1f26; margin-bottom: 16pt; }
+      .cover h1 { font-size: 25pt; margin: 0 0 6pt; line-height: 1.16; }
+      .cover .sub { font-size: 12.5pt; color: #4b5563; margin: 0 0 22pt; font-weight: 400; }
+      .cover .meta {
+        display: grid; grid-template-columns: 108pt 1fr; gap: 5pt 14pt;
+        font-size: 9.4pt; border-top: 1px solid #dfe4ea; padding-top: 12pt; margin-top: 8pt;
+      }
+      .cover .meta dt {
+        font-family: "JetBrains Mono", monospace; font-size: 8.2pt; letter-spacing: .08em;
+        text-transform: uppercase; color: #77818f;
+      }
+      .cover .meta dd { margin: 0; }
+      .abstract {
+        margin-top: 20pt; padding: 12pt 14pt; background: #f6f8fa;
+        border-left: 3px solid #2f5fd0; border-radius: 0 4px 4px 0; font-size: 10pt;
+      }
+      .abstract b { display: block; font-family: "JetBrains Mono", monospace; font-size: 8.2pt;
+                    letter-spacing: .1em; text-transform: uppercase; color: #2f5fd0; margin-bottom: 5pt; }
+
+      .toc { margin-top: 22pt; font-size: 9.6pt; }
+      .toc div { display: flex; gap: 8pt; padding: 2.5pt 0; border-bottom: 1px dotted #dfe4ea; }
+      .toc span:first-child { font-family: "JetBrains Mono", monospace; color: #77818f; width: 20pt; }
+
+      /* blocks */
+      figure { margin: 10pt 0 12pt; break-inside: avoid; }
+      figure img { width: 100%; display: block; border: 1px solid #dfe4ea; border-radius: 4px; }
+      figcaption {
+        font-family: "JetBrains Mono", monospace; font-size: 8pt; color: #77818f;
+        margin-top: 5pt; letter-spacing: .03em;
+      }
+      table { width: 100%; border-collapse: collapse; font-size: 9.2pt; margin: 8pt 0 11pt; break-inside: avoid; }
+      th, td { border: 1px solid #dfe4ea; padding: 4.5pt 7pt; text-align: left; vertical-align: top; }
+      th {
+        background: #f6f8fa; font-family: "JetBrains Mono", monospace; font-size: 8pt;
+        letter-spacing: .06em; text-transform: uppercase; color: #4b5563; font-weight: 500;
+      }
+      td.mono { font-family: "JetBrains Mono", monospace; font-size: 8.4pt; }
+      pre {
+        background: #0f1216; color: #c3cddb; border-radius: 4px; padding: 9pt 11pt;
+        font-family: "JetBrains Mono", monospace; font-size: 8.2pt; line-height: 1.62;
+        overflow-x: auto; margin: 7pt 0 10pt; break-inside: avoid;
+      }
+      pre .c { color: #6c7787; }
+      pre .k { color: #7fa7ff; }
+      pre .s { color: #7fd3a8; }
+      .note {
+        border: 1px solid #e2e7ed; border-left: 3px solid #c9a227; background: #fdfaf1;
+        padding: 8pt 11pt; border-radius: 0 4px 4px 0; margin: 9pt 0 11pt;
+        font-size: 9.4pt; break-inside: avoid;
+      }
+      .note b { font-size: 9.4pt; }
+      .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+      .kicker {
+        font-family: "JetBrains Mono", monospace; font-size: 8pt; letter-spacing: .1em;
+        text-transform: uppercase; color: #77818f; margin-bottom: 3pt;
+      }
+      .pg { break-before: page; }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════ COVER ═══════════════ -->
+    <section class="cover">
+      <div class="rule"></div>
+      <h1>Intelligent Email&nbsp;Triage Assistant</h1>
+      <p class="sub">Design document: an AI-assisted triage console for EDA engineering support mail</p>
+
+      <dl class="meta">
+        <dt>Submission</dt><dd>Cadence internship: software engineering, text processing, AI decision support</dd>
+        <dt>Stack</dt><dd>FastAPI · SQLAlchemy · SQLite · Google Gemini · scikit-learn · React · Vite</dd>
+        <dt>Interface</dt><dd>Single-page operator console, no UI framework, ~68&nbsp;kB gzipped</dd>
+        <dt>Tests</dt><dd>20 backend tests, all passing (Fig. 2)</dd>
+      </dl>
+
+      <div class="abstract">
+        <b>Summary</b>
+        A support inbox for EDA tooling carries a punishing mix: SIGSEGV stack traces that block a
+        tape-out, licence servers that have taken forty engineers offline, model reviews that can
+        wait a week, and invoice queries that are not engineering's problem at all. They arrive
+        interleaved and look alike in a mail client. This system reads each email, decides what kind
+        of problem it is and how urgent, states what it thinks the sender wants and what should
+        happen next, checks whether the same thing has been seen before, and, where the email is a
+        genuine defect report, drafts the issue. A human confirms or corrects every decision, and
+        those corrections are recorded and reported as accuracy. The console is built so that the
+        pipeline behind each of those steps stays visible rather than hidden behind a verdict.
+      </div>
+
+      <div class="toc">
+        <div><span>1</span><span>Problem and user</span></div>
+        <div><span>2</span><span>Architecture and data flow</span></div>
+        <div><span>3</span><span>Text preprocessing</span></div>
+        <div><span>4</span><span>AI approach</span></div>
+        <div><span>5</span><span>Similarity search</span></div>
+        <div><span>6</span><span>Human-in-the-loop review</span></div>
+        <div><span>7</span><span>API design</span></div>
+        <div><span>8</span><span>Interface design decisions</span></div>
+        <div><span>9</span><span>Testing and verification</span></div>
+        <div><span>10</span><span>Limitations</span></div>
+        <div><span>11</span><span>Future improvements</span></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 1 ═══════════════ -->
+    <h2>1 · Problem and user</h2>
+
+    <h3>The problem</h3>
+    <p>
+      A shared engineering support inbox receives high volumes of technical mail whose urgency is
+      not correlated with how urgent it sounds. An email titled <em>"quick question"</em> may be a
+      licence outage blocking a delivery milestone; one titled <em>"URGENT"</em> may be an invoice
+      dispute. Triage is therefore a reading task before it is a routing task, and reading every
+      message carefully does not scale with volume.
+    </p>
+    <p>
+      The cost of getting it wrong is asymmetric. A P1 crash misfiled as a routine question costs a
+      tape-out slip. A P4 admin note escalated to engineering costs an interrupted engineer. The
+      system is therefore designed to make the <em>critical</em> decision fast and visible, and to
+      make every decision reversible by a human.
+    </p>
+
+    <h3>The user</h3>
+    <p>
+      The operator is an EDA support engineer, CAD engineer, or technical operations lead working a
+      queue. They are technically fluent (a stack trace is information to them, not noise) and
+      they are interrupt-driven. The interface assumes:
+    </p>
+    <ul>
+      <li>They want to know <b>what needs attention now</b> before anything else.</li>
+      <li>They will not trust a classification they cannot check, so the evidence stays on screen next to the verdict.</li>
+      <li>They work at a desktop with a keyboard, in long sessions, and value density over whitespace.</li>
+      <li>They are the authority: the model proposes, the operator disposes.</li>
+    </ul>
+
+    <h3>What the system produces per email</h3>
+    <table>
+      <tr><th style="width:104pt">Output</th><th>Purpose</th></tr>
+      <tr><td class="mono">category</td><td>One of five routing destinations: which team owns this</td></tr>
+      <tr><td class="mono">priority</td><td>P1–P4: when it has to be looked at</td></tr>
+      <tr><td class="mono">intent_summary</td><td>What the sender is actually asking for, in plain language</td></tr>
+      <tr><td class="mono">suggested_action</td><td>The operational next step, phrased as a directive</td></tr>
+      <tr><td class="mono">confidence</td><td>The model's own certainty, used to prioritise human review</td></tr>
+      <tr><td class="mono">similar_issue</td><td>A previously triaged email covering the same ground, if one exists</td></tr>
+      <tr><td class="mono">jira_payload</td><td>A structured issue, only where the email is a reproducible defect report</td></tr>
+      <tr><td class="mono">draft_reply</td><td>An acknowledgement the operator can edit and send</td></tr>
+    </table>
+
+    <!-- ═══════════════ 2 ═══════════════ -->
+    <h2>2 · Architecture and data flow</h2>
+    <p>
+      Six stages, each with one responsibility. The two intelligence stages are deliberately
+      different in kind: classification is a language-model call, similarity is classical
+      information retrieval. Keeping them separate means the expensive, non-deterministic component
+      is used only where judgement is genuinely required.
+    </p>
+
+    <figure>
+      <img src="architecture_diagram.png" alt="System architecture diagram" />
+      <figcaption>Fig. 1. Ingestion through human feedback. Solid = request path, dashed = feedback loop.</figcaption>
+    </figure>
+
+    <h3>Request path for a single email</h3>
+    <ol>
+      <li><code>POST /api/emails</code> receives <code>message_id</code>, <code>sender</code>, <code>subject</code>, <code>body</code>.</li>
+      <li>The <code>message_id</code> is checked first. A duplicate returns the stored result without a second model call; ingestion is idempotent, which matters when a mail connector redelivers.</li>
+      <li><code>preprocess()</code> reduces the body. Both forms are stored: <code>body_raw</code> for the human, <code>body_clean</code> for the model.</li>
+      <li><code>triage_email()</code> makes one Gemini call under a declared response schema, then validates what comes back.</li>
+      <li><code>find_similar()</code> scores the new email against the corpus of everything triaged so far.</li>
+      <li>Email and triage result are committed, and the result is returned to the caller.</li>
+    </ol>
+    <p>
+      Batch ingestion follows the same path per email but returns <code>202 Accepted</code> with a
+      job id immediately and runs on FastAPI <code>BackgroundTasks</code>. The console polls
+      <code>GET /api/emails/batch/{job_id}</code> and renders the real completed count; polling
+      stops the moment the job reports <code>done</code>.
+    </p>
+
+    <!-- ═══════════════ 3 ═══════════════ -->
+    <h2 class="pg">3 · Text preprocessing</h2>
+    <p>
+      Raw support mail is mostly not signal. An HTML newsletter wrapper, six levels of quoted
+      thread history, and a 4,000-line hex dump all cost tokens and dilute the classification. The
+      preprocessor is a deterministic, testable stage that runs before any model call.
+    </p>
+
+    <div class="note">
+      <b>Design decision: the dump detector is a linear scan, not a regex.</b> The natural
+      expression of "four or more whitespace-separated hex groups" is
+      <code>([0-9a-fA-F]{4,}\s+){4,}</code>, and that pattern backtracks catastrophically on a long
+      unbroken run of hex characters, because the engine retries from every offset. Cost grew with
+      the square of the line length: 4&nbsp;KB took 0.11&nbsp;s, 16&nbsp;KB took 1.9&nbsp;s, and a
+      megabyte stalled indefinitely. A pasted core dump or an inline attachment could therefore hold
+      a request open, which is a denial-of-service vector in exactly the mail this product handles.
+      It is now a single left-to-right pass that cannot backtrack. One megabyte is scanned in
+      0.09&nbsp;s, and the behaviour is unchanged: the two implementations were compared over 4,000
+      randomly generated lines plus a set of handcrafted cases with zero disagreements.
+    </div>
+
+    <table>
+      <tr><th style="width:118pt">Step</th><th>Rationale</th></tr>
+      <tr><td>Strip HTML</td><td>Support mail is frequently multipart HTML; tags are pure token cost.</td></tr>
+      <tr><td>Remove quoted thread</td><td>Drops <code>&gt;</code>-prefixed lines, <code>On … wrote:</code> blocks, and Outlook <code>-----Original Message-----</code> separators, so the model classifies the <em>new</em> message rather than the thread's history.</td></tr>
+      <tr><td>Truncate log dumps</td><td>A hex-dump heuristic finds the start of a dump and keeps 40 lines. The first frames of a stack trace carry the diagnosis; the remaining thousands do not.</td></tr>
+      <tr><td>Collapse whitespace</td><td>Normalises the blank-line noise left by the previous steps.</td></tr>
+      <tr><td>Cap at 3,000 chars</td><td>A hard token-budget ceiling, with a visible truncation marker so nothing is silently lost.</td></tr>
+    </table>
+
+    <div class="note">
+      <b>Design decision: keep both bodies.</b> Storing only the cleaned text would have been
+      cheaper, but it makes the preprocessor unauditable: an operator could never tell whether
+      something important was stripped. The console therefore offers a <b>Cleaned / Source</b>
+      toggle and reports the delta (for example, <span class="mono">−266 chars (−31%)</span>). The
+      cost is roughly double the body storage; the benefit is that a preprocessing bug is visible
+      rather than silent.
+    </div>
+
+    <!-- ═══════════════ 4 ═══════════════ -->
+    <h2>4 · AI approach</h2>
+    <p>
+      One Gemini call per email, using a Flash-class model
+      (<code>gemini-3.6-flash</code> by default, overridable with <code>GEMINI_MODEL</code>). The
+      workload is short-context classification and structured extraction, which does not warrant a
+      premium tier. The categories are not generic sentiment buckets; they are the actual routing
+      destinations of an EDA support organisation, and the priority definitions are written in terms
+      of engineering consequence rather than adjectives.
+    </p>
+
+    <pre><span class="c"># Priority, defined by consequence rather than by tone</span>
+<span class="s">"P1"</span> : production-blocking, tape-out at risk, all engineers blocked, revenue impact
+<span class="s">"P2"</span> : significant engineering impact, workaround needed, SLA risk
+<span class="s">"P3"</span> : technical question, non-urgent review, normal support request
+<span class="s">"P4"</span> : admin, info request, low urgency</pre>
+
+    <h3>The schema is enforced, not requested</h3>
+    <p>
+      The call sets <code>response_mime_type: application/json</code> and passes a response schema,
+      so the shape is a constraint on decoding rather than an instruction the model may ignore.
+      <code>category</code> and <code>priority</code> are declared as enums, which means an
+      out-of-taxonomy label cannot be returned in the first place; there is no prompt-side plea to
+      "return valid JSON" and no markdown fence to strip.
+    </p>
+    <p>
+      Validation still runs on the way out, in <code>app/llm.py</code>: required fields must be
+      present, confidence must be numeric and is clamped to 0-100, and a
+      <code>jira_payload</code> that is incomplete or contradicts <code>needs_jira</code> is dropped
+      rather than rendered half-built. The provider split is deliberately thin, one file for the
+      shared contract and one for the vendor, so a second provider would only supply its own
+      <code>generate()</code>.
+    </p>
+
+    <h3>Why a single structured call</h3>
+    <ul>
+      <li><b>Cost and latency.</b> Category, priority, intent, action, confidence and the Jira payload are all functions of the same reading. Splitting them into separate calls would multiply cost without improving any one of them.</li>
+      <li><b>Consistency.</b> A single call cannot contradict itself: it cannot label an email P1 while drafting a low-urgency reply.</li>
+      <li><b>Determinism at the boundary.</b> A malformed or blocked response fails loudly at ingest rather than producing a half-populated record. Temperature is held at 0.2 so the same email does not drift between P2 and P3 across runs.</li>
+    </ul>
+
+    <h3>Conditional structured output</h3>
+    <p>
+      The prompt returns a <code>needs_jira</code> boolean, and the client drops
+      <code>jira_payload</code> whenever it is false. This is why an invoice query produces no
+      issue: not because generation failed, but because the model decided the email was not a defect
+      report. The console shows that as a deliberate <span class="mono">n/a</span> in the pipeline
+      strip rather than as a missing feature.
+    </p>
+
+    <h3>Failure is never disguised</h3>
+    <p>
+      Every failure mode is a typed <code>TriageError</code> carrying an HTTP status and one
+      operator-readable sentence: a missing <code>GEMINI_API_KEY</code>, a rejected key, a rate
+      limit, an unavailable service, a network failure, a blocked or empty candidate, malformed
+      JSON, and a schema violation. The API returns that sentence; the browser never sees a Python
+      traceback. Critically, none of these paths invents a classification. An email that could not
+      be triaged is stored untriaged and can be re-ingested, and a batch records the failure and
+      keeps going rather than aborting the job.
+    </p>
+
+    <div class="note">
+      <b>On confidence.</b> The <code>confidence</code> value is the model's self-report, not a
+      calibrated probability, and it is presented as such. It is used for one honest purpose:
+      ordering the human review queue lowest-confidence-first, so the scarce human attention lands
+      where the model was least sure. The console shows the figure and a one-word band beside the
+      bar, and deliberately does not draw a numeric threshold scale, because the backend defines no
+      such thresholds.
+    </div>
+
+    <!-- ═══════════════ 5 ═══════════════ -->
+    <h2>5 · Similarity search</h2>
+    <p>
+      Recurrence is the most valuable signal in a support queue. The fourth report of the same
+      Virtuoso regression should not be investigated from scratch. Every incoming email is scored
+      against the corpus of previously triaged mail using TF-IDF vectors and cosine similarity, and
+      a match is surfaced only above a 0.35 threshold. The score travels with the match, so the
+      console can show how strong it is rather than presenting a bare assertion.
+    </p>
+
+    <pre>corpus = [<span class="s">f"{email.subject} {triage.intent_summary}"</span> <span class="k">for</span> t, e <span class="k">in</span> past]
+query  = <span class="s">f"{subject} {body[:500]}"</span>
+tfidf  = TfidfVectorizer(stop_words=<span class="s">"english"</span>, max_features=<span class="s">5000</span>).fit_transform(corpus + [query])
+scores = cosine_similarity(tfidf[-<span class="s">1</span>], tfidf[:-<span class="s">1</span>]).flatten()</pre>
+
+    <h3>Why the corpus is subject + intent, not the raw body</h3>
+    <p>
+      Indexing <code>intent_summary</code> rather than the body means the retrieval runs over the
+      model's normalised statement of the problem. Two reports of the same crash written in very
+      different English (one terse, one apologetic and rambling) converge once both have been
+      summarised. It also keeps the vectors small and the index cheap to rebuild.
+    </p>
+
+    <h3>Why TF-IDF rather than embeddings</h3>
+    <ul>
+      <li>The vocabulary is narrow and highly technical. Terms like <code>SIGSEGV</code>, <code>lmgrd</code>, <code>NetlistParser</code> and <code>27000</code> are precisely the rare, high-IDF tokens this method weights most heavily; exact-term matching is a strength here, not a limitation.</li>
+      <li>No API call, no key, no per-query cost, and no second vendor dependency in the request path.</li>
+      <li>It is inspectable. A cosine score can be explained to an operator; the console states the mechanism and the threshold rather than presenting the match as an oracle.</li>
+    </ul>
+
+    <div class="note">
+      <b>Measured behaviour.</b> On a nine-email corpus the scorer ranks correctly: two Virtuoso
+      SIGSEGV reports score 0.258 against each other and two licence-server failures 0.257, while
+      unrelated pairs score below 0.11, but nothing clears 0.35 until a genuinely near-duplicate
+      arrives, at which point the match fires. The ordering is right and the threshold is
+      conservative; on a small corpus it is arguably <em>too</em> conservative. See §10.
+    </div>
+
+    <!-- ═══════════════ 6 ═══════════════ -->
+    <h2 class="pg">6 · Human-in-the-loop review</h2>
+    <p>
+      The system is explicitly not autonomous. Every triage result carries a review control, and the
+      operator answers one question: was this correct? A confirmation records
+      <code>{correct: true}</code>. A correction records the replacement category and priority
+      alongside <code>{correct: false}</code>.
+    </p>
+
+    <h3>What the loop is for</h3>
+    <ul>
+      <li><b>Accountability.</b> <code>feedback_log</code> is an audit trail of who overrode the model and how, which is what makes an automated classifier acceptable in an operations context.</li>
+      <li><b>Measurement.</b> <code>GET /api/stats</code> reports agreement rate as <code>feedback_accuracy</code>, so classification quality is a number that is tracked rather than assumed.</li>
+      <li><b>Future training signal.</b> Corrections accumulate into a labelled dataset, the natural input to prompt refinement or few-shot examples (§11).</li>
+    </ul>
+
+    <figure>
+      <img src="console_review.png" alt="Human review worklist" />
+      <figcaption>Fig. 5. The review worklist, ordered lowest-confidence-first, with confirmed and corrected results kept separate and labelled.</figcaption>
+    </figure>
+
+    <div class="note">
+      <b>Design decision: corrections do not overwrite the model's output.</b> A correction is
+      written as a new row, and the original classification is left intact and still displayed. If
+      corrections silently replaced predictions, the accuracy metric would erase its own evidence
+      and the record of what the model actually said would be lost. This costs a join on read and
+      is worth it.
+    </div>
+
+    <!-- ═══════════════ 7 ═══════════════ -->
+    <h2>7 · API design</h2>
+    <table>
+      <tr><th style="width:42pt">Method</th><th style="width:132pt">Path</th><th>Behaviour</th></tr>
+      <tr><td class="mono">POST</td><td class="mono">/api/emails</td><td>Ingest and triage synchronously. <code>201</code>. Idempotent on <code>message_id</code>.</td></tr>
+      <tr><td class="mono">POST</td><td class="mono">/api/emails/batch</td><td>Accept a batch, process in the background. <code>202</code> with a job id.</td></tr>
+      <tr><td class="mono">GET</td><td class="mono">/api/emails/batch/{id}</td><td>Job progress: <code>queued</code> → <code>processing</code> → <code>done</code>.</td></tr>
+      <tr><td class="mono">GET</td><td class="mono">/api/emails</td><td>Queue listing, filterable by <code>priority</code> and <code>category</code>.</td></tr>
+      <tr><td class="mono">GET</td><td class="mono">/api/emails/{id}</td><td>Full record: both bodies, triage result, review state.</td></tr>
+      <tr><td class="mono">POST</td><td class="mono">/api/triage/{id}/feedback</td><td>Record a human decision. <code>204</code>.</td></tr>
+      <tr><td class="mono">GET</td><td class="mono">/api/stats</td><td>Distributions, mean confidence, review counts, accuracy.</td></tr>
+    </table>
+
+    <h3>Principles</h3>
+    <ul>
+      <li><b>Idempotent ingestion.</b> Redelivery is normal for mail connectors, so a repeated <code>message_id</code> returns the stored triage rather than paying for a second model call.</li>
+      <li><b>Asynchronous only where it earns it.</b> Single ingest stays synchronous because the caller wants the verdict. Batch goes async because a caller submitting 120 emails does not want to hold a connection through 120 model calls.</li>
+      <li><b>List responses stay light.</b> Listing returns a preview and omits both bodies; the full text is fetched only when an email is opened. A 100-row queue does not ship 100 full stack traces.</li>
+      <li><b>Additive evolution.</b> The fields added to support the console (the triage <code>id</code>, the review projection, the bodies and the preview) were added as optional fields. No existing response shape changed and no existing test needed modification.</li>
+    </ul>
+
+    <!-- ═══════════════ 8 ═══════════════ -->
+    <h2 class="pg">8 · Interface design decisions</h2>
+
+    <figure>
+      <img src="console.png" alt="Triage console, queue and analysis" />
+      <figcaption>Fig. 3. The workspace: queue, message, analysis. Selecting moves left to right through understand → decide → act.</figcaption>
+    </figure>
+
+    <h3>Priority is encoded four ways, never by colour alone</h3>
+    <p>
+      Each queue row carries the priority as rail geometry (solid, thin, or dashed), type weight,
+      text brightness, and a written code. Colour reinforces but never carries the signal alone, so
+      the ladder survives greyscale printing and colour-blind viewing. The queue is additionally
+      grouped into sticky priority bands, so <em>"what needs attention now"</em> is answered by the
+      structure of the list before any pixel is interpreted.
+    </p>
+
+    <h3>Signal, decision, action</h3>
+    <p>
+      The analysis panel is ordered as a decision, not as a feature list. It opens with the verdict
+      (priority, category, confidence), then the observable signals, then the intent, then the
+      recommended action. Only after those does it offer context the operator reaches for rather
+      than reads first: the similar issue, the generated engineering issue, and the review control.
+    </p>
+    <p>
+      The signals row lists terms from a fixed EDA vocabulary that are literally present in the
+      email, such as <span class="mono">SIGSEGV</span>, <span class="mono">Virtuoso</span>,
+      <span class="mono">regression</span> and <span class="mono">tape-out</span>. It is evidence
+      the operator can check against the message in the next panel, not an account of how the model
+      reasoned. The model is never asked to explain itself, and no chain of thought is exposed.
+    </p>
+
+    <div class="note">
+      <b>Design decision: an earlier version showed more, and was worse.</b> The panel used to open
+      with a five-node pipeline strip reporting the state of every stage. It was accurate and it was
+      removed, because every fact it displayed was already stated by the section it sat above: the
+      preprocessing delta by the message tabs, the confidence by the verdict, the match and the
+      generated issue by their own blocks. It demonstrated the architecture rather than helping the
+      operator. Monospace was cut back at the same time, from every label to just ids, figures,
+      payloads and code, and the confidence bar lost the tick marks and 0-100 scale that implied
+      thresholds the backend does not define.
+    </div>
+
+    <h3>Technical content is detected and set apart</h3>
+    <p>
+      The message body is segmented into prose and technical blocks, and technical blocks are set in
+      monospace with a line gutter. Classification is by <em>shape, not topic</em>: stack frames,
+      C++ scope resolution, SystemVerilog assertions, log-level prefixes, key/value diagnostic
+      lines and tool invocations with flags. A sentence that merely mentions <code>SIGSEGV</code> is
+      still a sentence and stays in prose; an early topic-keyword approach was rejected precisely
+      because it monospaced ordinary English.
+    </p>
+
+    <h3>A dark frame around a light workspace</h3>
+    <p>
+      The sidebar and the top bar form one continuous dark L in a deep neutral charcoal. Inside it
+      the workspace is light: the queue and the decision panel on a cool grey, the message itself on
+      white. Application furniture is dark, the work is light, and the brightest surface on screen is
+      the email being read. Measured on the running application, the three workspace columns carry
+      zero border width and zero corner radius, so every edge inside the frame is a value shift
+      rather than a drawn line.
+    </p>
+    <p>
+      The dark chrome is held to accessible contrast rather than styled by eye. Every text colour on
+      it was measured against WCAG AA and four values were lightened until they cleared 4.5:1;
+      section headings, the top-bar subtitle, counter labels and the search placeholder now sit
+      between 4.8:1 and 5.3:1, and primary chrome text at 14.6:1.
+    </p>
+    <p>
+      Proportion reinforces it. At 1600&nbsp;px the queue is 322&nbsp;px and the decision panel
+      366&nbsp;px, leaving the widest column and the widest gutters to the message. The columns are
+      deliberately unequal, and the selected queue row takes the white surface of the message it
+      opens, tying the two together without an outline.
+    </p>
+    <p>
+      Queue rows carry no borders at all, filters are typographic rather than segmented controls,
+      and the accent is a deep navy reserved for the active navigation item, the selected row and
+      the single primary button on a screen. Priority colour appears only on the priority code
+      itself. There are no gradients, glows or translucency anywhere in the product.
+    </p>
+    <p>
+      The type is IBM Plex Sans, with IBM Plex Mono reserved for stack traces, payloads, identifiers
+      and figures that must align. The pairing was chosen for its engineering provenance and because
+      it reads as a considered choice rather than a default. Body text sits at 14–15&nbsp;px with
+      generous leading, since this is an application someone reads in for a whole shift.
+    </p>
+
+    <h3>Nothing pretends to work</h3>
+    <p>
+      The console does not create Jira issues, because the backend has no Jira integration; it
+      renders the generated issue and offers the payload for copying, which is a real action. When
+      the API is unreachable it falls back to a bundled demo dataset, labels itself
+      <span class="mono">DEMO DATA</span> in the top bar, and <em>disables</em> ingest with an
+      explanation rather than faking a success.
+    </p>
+
+    <figure>
+      <img src="console_analytics.png" alt="Analytics view" />
+      <figcaption>Fig. 4. Analytics. Every figure is a field of <span class="mono">/api/stats</span> or a cross-tabulation of the loaded queue, labelled as such.</figcaption>
+    </figure>
+
+    <h3>Accessibility and responsiveness</h3>
+    <ul>
+      <li>The queue is a keyboard-navigable listbox with roving tabindex; <code>j</code>/<code>k</code> move selection, <code>/</code> focuses search, <code>1</code>–<code>5</code> switch sections.</li>
+      <li>Semantic landmarks, a skip link, visible focus rings, live regions for async state, and <code>prefers-reduced-motion</code> support throughout.</li>
+      <li>Three columns above 1180&nbsp;px; below that the analysis panel stacks under the message; below 860&nbsp;px queue and detail become separate stages with a back control, rather than three shrunken columns.</li>
+    </ul>
+
+    <!-- ═══════════════ 9 ═══════════════ -->
+    <h2 class="pg">9 · Testing and verification</h2>
+    <p>
+      The backend suite covers the preprocessor's individual transformations, ingest, idempotency,
+      conditional Jira generation, similarity pass-through, batch acceptance and job lookup, listing
+      and detail, feedback including the 404 path, and statistics including the empty-database case.
+      The model call is mocked, so the suite is deterministic and runs without an API key.
+    </p>
+
+    <figure>
+      <img src="test_results.png" alt="pytest output, 20 tests passing" />
+      <figcaption>Fig. 2. <span class="mono">pytest tests/ -v</span>, all 20 tests passing.</figcaption>
+    </figure>
+
+    <p>The frontend was verified against a live server driven through a headless browser:</p>
+    <ul>
+      <li>Correction submitted through the UI, persisted, and still present after a reload.</li>
+      <li>Single ingest returning a real verdict; batch observed through <span class="mono">queued → processing → complete</span> with progress read from the job, not animated.</li>
+      <li>Backend filtering, client-side search, no-results and empty states, keyboard navigation, and the similarity link opening the matched email.</li>
+      <li>Offline fallback: the console detects an unreachable API, loads the demo set, and disables ingest.</li>
+      <li>Zero console errors or warnings at desktop, tablet and mobile widths, with no horizontal overflow.</li>
+    </ul>
+
+    <!-- ═══════════════ 10 ═══════════════ -->
+    <h2>10 · Limitations</h2>
+    <ul>
+      <li><b>The similarity threshold is tuned for a mature corpus.</b> At 0.35 with only a handful of stored emails, closely related issues rank correctly but score below the cut and are reported as "no match". The behaviour is honest but conservative; the threshold should be corpus-size aware.</li>
+      <li><b>The index is rebuilt per query.</b> <code>find_similar()</code> vectorises the entire corpus on every ingest: O(n) per email and O(n²) across a backlog. Fine at hundreds, not at hundreds of thousands.</li>
+      <li><b>Batch job state is in memory.</b> <code>_batch_jobs</code> is a process-local dict, so progress is lost on restart and does not survive multiple workers.</li>
+      <li><b>Confidence is self-reported.</b> It is useful for ordering review, but it is not a calibrated probability and should not be read as one.</li>
+      <li><b>SQLite and sequential batch processing.</b> Single-writer storage and one-at-a-time model calls are right for this scale and would need replacing for a real support volume.</li>
+      <li><b>No authentication.</b> Every endpoint is open; the console assumes a trusted network.</li>
+      <li><b>Ingestion is the open edge.</b> The Gmail/IMAP connector is not implemented; the contract is the API, and the console plus batch endpoint stand in for a live mail feed.</li>
+      <li><b>Attachments are not handled.</b> Emails frequently reference an attached log; only the body text is analysed.</li>
+    </ul>
+
+    <!-- ═══════════════ 11 ═══════════════ -->
+    <h2>11 · Future improvements</h2>
+    <table>
+      <tr><th style="width:112pt">Area</th><th>Improvement</th></tr>
+      <tr><td>Similarity</td><td>Persist the fitted vectoriser and cache the document-term matrix incrementally; make the threshold adaptive to corpus size; return the cosine score to the client so the console can show match strength instead of a binary.</td></tr>
+      <tr><td>Feedback loop</td><td>Feed accumulated corrections back as few-shot examples, and report per-category precision so it is clear <em>where</em> the classifier is weak rather than only that it is.</td></tr>
+      <tr><td>Ingestion</td><td>Gmail OAuth / IMAP IDLE worker with attachment extraction, feeding the existing batch endpoint.</td></tr>
+      <tr><td>Durability</td><td>Move batch state and the queue to Redis or a task table; PostgreSQL for concurrent writers; parallelise model calls with a bounded worker pool.</td></tr>
+      <tr><td>Integration</td><td>Real Jira issue creation and reply sending, with the generated payload and draft as the pre-filled starting point rather than the final word.</td></tr>
+      <tr><td>Calibration</td><td>Compare self-reported confidence against the human agreement rate to learn whether the model's certainty is meaningful, and re-band the display accordingly.</td></tr>
+      <tr><td>Operations</td><td>Authentication and per-team queues; SLA timers on P1 and P2; alerting when a P1 sits unreviewed.</td></tr>
+    </table>
+
+    <div class="note" style="border-left-color:#2f5fd0;background:#f6f8fa;">
+      <b>Closing note.</b> The consistent decision throughout this project was to keep the machinery
+      visible. The preprocessor's edit is shown as a diff, the similarity match states its method
+      and threshold, an absent Jira payload is labelled as a decision rather than a gap, and the
+      model's verdict survives the human correction that overrides it. A triage assistant that
+      cannot be checked is one that will not be trusted, and an operator who cannot see why it said
+      P1 has no reason to act on it.
+    </div>
+  </body>
+</html>
